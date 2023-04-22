@@ -40,9 +40,9 @@ title: <string>
 message: <string>
 callback:
  - title: <string>
-   event: <string>
+   action: <string>
  - title: <string>
-   event: <string>
+   action: <string>
 timeout: <number>
 image_url: <url>
 click_url: <url>
@@ -76,9 +76,10 @@ action can be the following:
  
 callback: Actionable buttons of the notification
    - title: Title of the button
-   - event: a string that will be used the catch back the event when the button is pressed.
-     If event: turn_off_lights, then an event "mobile_app_notification_action" with action = "turn_off_lights" will be triggered once the button is pressed.
+   - action: a string that will be used the catch back the action when the button is pressed.
+     If action: turn_off_lights, then an event "mobile_app_notification_action" with action = "turn_off_lights" will be triggered once the button is pressed.
      Up to the app / automation creating the notification to listen to this event and perform some action.
+   - Any other options describe in documentation (https://companion.home-assistant.io/docs/notifications/actionable-notifications#uri-values) is usable
  
 timeout: (android only) Timeout of the notification in seconds. timeout: 60 will display the notification for one minute, then discard it automatically.
  
@@ -219,10 +220,9 @@ class notifier(hass.Hass):
         if "callback" in data:
             notification_data["actions"] = []
             for callback in data["callback"]:
-                action = {
-                    "action":callback["event"],
-                    "title":callback["title"]
-                }
+                action = {}
+                for key in callback.keys():
+                    action[key] = callback[key]
                 notification_data["actions"].append(action)
         if "timeout" in data: #android
             notification_data["timeout"] = data["timeout"]
